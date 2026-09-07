@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>상속세 준비서류 서류안내 원제우세무사</title>
+<title>상속세 준비서류 자가진단</title>
+<meta name="description" content="상속세 준비서류 안내 · 원제우세무사">
+<meta property="og:type" content="website">
+<meta property="og:title" content="상속세 준비서류 자가진단">
+<meta property="og:description" content="상속세 준비서류 안내 · 원제우세무사">
+<meta property="og:site_name" content="원제우세무사사무소">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
@@ -507,14 +512,18 @@
       var reqColor = item.req === "필수" ? "#1f3a52" : "#9a927e";
       var extra = item.note ? ' <span style="color:#9a927e;font-size:11px;">(' + item.note + ')</span>' : '';
       if (item.reason) extra += ' <span style="color:#9a927e;font-size:11px;">사유: ' + item.reason + '</span>';
+      // Printable checkbox: outputs a real square box on the PDF so a
+      // printed copy can be checked off by hand with a pen. If the item was
+      // already checked on-screen, the box is pre-filled with a check mark.
+      var boxHtml = '<div style="width:13px;height:13px;border:1.3px solid #6b6455;border-radius:3px;' +
+        (ok ? 'background:#a23b2e;border-color:#a23b2e;' : 'background:#ffffff;') +
+        'display:flex;align-items:center;justify-content:center;">' +
+        (ok ? '<span style="color:#ffffff;font-size:10px;line-height:1;font-weight:700;">&#10003;</span>' : '') +
+        '</div>';
       return '<tr>' +
+        '<td style="width:20px;padding:8px 8px 7px 0;vertical-align:top;border-bottom:1px solid #e6dfcd;">' + boxHtml + '</td>' +
         '<td style="padding:7px 0;font-size:12.5px;color:#26241f;border-bottom:1px solid #e6dfcd;">' +
           item.label + ' <span style="font-size:10px;font-weight:700;color:' + reqColor + ';">(' + item.req + ')</span>' + extra +
-        '</td>' +
-        '<td style="padding:7px 0 7px 10px;text-align:right;vertical-align:top;border-bottom:1px solid #e6dfcd;white-space:nowrap;">' +
-          '<span style="display:inline-block;font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;' +
-          (ok ? 'background:#f3e1dd;color:#a23b2e;' : 'background:#eeece3;color:#8a8371;') + '">' +
-          (ok ? '준비' : '없음') + '</span>' +
         '</td>' +
       '</tr>';
     }
@@ -582,7 +591,7 @@
         secondaryHtml +
 
         '<div style="margin-top:28px;padding-top:16px;border-top:1px dashed #ddd4bf;font-size:10.5px;color:#9a927e;line-height:1.8;">' +
-          '※ &quot;없음&quot;으로 표시된 항목은 상속인이 자가진단 시점에 준비하지 못했거나 해당 사항이 없는 서류입니다. 세부 확인은 담당자와 별도 상담 바랍니다.' +
+          '※ 체크되지 않은 항목은 상속인이 자가진단 시점에 준비하지 못했거나 해당 사항이 없는 서류입니다. 세부 확인은 담당자와 별도 상담 바랍니다.' +
         '</div>' +
 
         '<div style="display:flex;justify-content:space-between;margin-top:34px;font-size:12px;">' +
