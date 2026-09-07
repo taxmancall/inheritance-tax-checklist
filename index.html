@@ -240,6 +240,9 @@
   .pdf-btn:active{ transform:translateY(1px); }
   .pdf-btn:disabled{ opacity:.55; cursor:default; }
   .pdf-btn svg{ width:16px; height:16px; }
+  .pdf-btn-secondary{
+    background:transparent; color:var(--navy); border:1.5px solid var(--navy);
+  }
 
   .toast{
     position:fixed; left:50%; bottom:76px; transform:translate(-50%,8px);
@@ -267,6 +270,11 @@
 
   @media (max-width:380px){
     .fields{ grid-template-columns:1fr; }
+  }
+  @media (max-width:460px){
+    .actionbar-inner{ flex-wrap:wrap; }
+    .actionbar-inner .status{ flex-basis:100%; order:-1; margin-bottom:6px; }
+    .pdf-btn{ flex:1; justify-content:center; padding-left:12px; padding-right:12px; }
   }
 </style>
 
@@ -319,11 +327,27 @@
     </div>
     <div class="exclude-box-src">※ 근거: 상속세 및 증여세법 제10조 단서</div>
   </div>
+
+  <div class="exclude-box" style="background:var(--seal-soft);">
+    <div class="exclude-box-title" style="color:var(--seal);">준비서류는 이렇게 보내주세요</div>
+    <p class="exclude-box-desc">
+      출력해서 서류를 하나씩 챙기실 거라면 <b>PDF 다운로드</b>를 눌러 인쇄해 주세요. 체크된 항목은 네모 칸이 미리 채워져 나옵니다.<br>
+      서류를 이미 파일로 준비해 두셨다면 <b>이메일로 보내기</b>를 눌러주세요. 휴대폰에서는 공유 화면에서 메일 앱을 선택하면 이 PDF가 자동으로 첨부된 메일이 열리고, 거기에 준비하신 나머지 파일들을 추가로 첨부해서 보내시면 됩니다. (PC에서는 PDF가 먼저 다운로드되고 메일 작성창이 열리는데, 다운로드된 PDF를 직접 첨부해 주세요.)
+    </p>
+    <div class="exclude-box-list">
+      · 이메일: <b>taxmancall@gmail.com</b><br>
+      · 카카오톡 채널·친구: <b>taxmancall</b>
+    </div>
+  </div>
 </div>
 
 <div class="actionbar">
   <div class="actionbar-inner">
     <div class="status"><b id="bar-checked">0</b> / <span id="bar-total">0</span> 준비완료</div>
+    <button class="pdf-btn pdf-btn-secondary" id="email-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="m3 6 9 6 9-6"/><path d="M3 6h18v12H3z"/></svg>
+      이메일로 보내기
+    </button>
     <button class="pdf-btn" id="pdf-btn" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
       PDF 다운로드
@@ -758,15 +782,41 @@
     return Promise.resolve(null);
   }
 
+  // On phones, offer the OS share sheet first so the client can send the
+  // finished PDF straight back to the office (e.g. tap the KakaoTalk icon
+  // and send to "taxmancall") instead of just saving it to Downloads.
+  // Returns a promise resolving true if the share sheet was shown
+  // (accepted or cancelled — either way nothing further to do), false if
+  // sharing isn't supported here and the caller should fall back.
+  function tryNativeShare(blob, filename){
+    try{
+      var file = new File([blob], filename, { type: "application/pdf" });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+        return navigator.share({
+          files: [file],
+          title: "상속세 준비서류",
+          text: "상속세 준비서류 확인서입니다. 확인 후 원제우세무사사무소로 보내주세요."
+        }).then(function(){
+          toast("공유 화면에서 카카오톡 등으로 보내주세요.");
+          return true;
+        }).catch(function(err){
+          if (err && err.name === "AbortError"){ toast("공유를 취소했습니다."); return true; }
+          return false;
+        });
+      }
+    }catch(e){}
+    return Promise.resolve(false);
+  }
+
   var pdfBtn = document.getElementById("pdf-btn");
+  var emailBtn = document.getElementById("email-btn");
   var printRoot = document.getElementById("printRoot");
+  var EMAIL_TO = "taxmancall@gmail.com";
 
-  pdfBtn.addEventListener("click", function(){
-    if (pdfBtn.disabled) return;
-    pdfBtn.disabled = true;
-    var originalHtml = pdfBtn.innerHTML;
-    pdfBtn.textContent = "PDF 생성 중…";
-
+  // Renders #printRoot and rasterizes it to a PDF blob via html2pdf.js.
+  // Shared by both the "PDF 다운로드" and "이메일로 보내기" buttons so the
+  // exact same document is produced either way.
+  function generatePdfBlob(){
     printRoot.innerHTML = buildPrintHtml();
     // Make it real (in-flow, visible) just for the capture — html2canvas
     // needs an actually-rendered element, not a hidden one.
@@ -787,11 +837,9 @@
     function cleanup(){
       printRoot.style.display = "none";
       printRoot.innerHTML = "";
-      pdfBtn.disabled = false;
-      pdfBtn.innerHTML = originalHtml;
     }
 
-    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve())
+    return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve())
       .then(function(){
         // give the freshly-shown content one real paint before capturing
         return new Promise(function(resolve){
@@ -802,26 +850,94 @@
         return window.html2pdf().set(opts).from(printRoot).outputPdf("blob");
       })
       .then(function(blob){
-        return getDownloadsCapability().then(function(cap){
-          if (cap && typeof cap.save === "function"){
-            return cap.save({ filename: filename, data: blob }).then(function(res){
-              toast(res && res.status === "delivered" ? "PDF를 전달했습니다." : "PDF가 저장되었습니다.");
-            }).catch(function(err){
-              if (err && err.code === "declined"){ toast("저장을 취소했습니다."); return; }
-              directDownload(blob, filename);
-              toast("PDF 다운로드가 시작되었습니다.");
-            });
-          }
-          directDownload(blob, filename);
-          toast("PDF 다운로드가 시작되었습니다.");
-        });
+        cleanup();
+        return { blob: blob, filename: filename, name: name };
       })
       .catch(function(err){
-        console.error(err);
-        toast("PDF 생성 중 오류가 발생했습니다. 다시 시도해 주세요.");
-      })
-      .finally(cleanup);
+        cleanup();
+        throw err;
+      });
+  }
+
+  function withButtonBusy(btn, busyLabel, fn){
+    if (btn.disabled) return;
+    btn.disabled = true;
+    var originalHtml = btn.innerHTML;
+    btn.textContent = busyLabel;
+    fn().catch(function(err){
+      console.error(err);
+      toast("처리 중 오류가 발생했습니다. 다시 시도해 주세요.");
+    }).finally(function(){
+      btn.disabled = false;
+      btn.innerHTML = originalHtml;
+    });
+  }
+
+  pdfBtn.addEventListener("click", function(){
+    withButtonBusy(pdfBtn, "PDF 생성 중…", function(){
+      return generatePdfBlob().then(function(r){
+        return tryNativeShare(r.blob, r.filename).then(function(shared){
+          if (shared) return;
+          return getDownloadsCapability().then(function(cap){
+            if (cap && typeof cap.save === "function"){
+              return cap.save({ filename: r.filename, data: r.blob }).then(function(res){
+                toast(res && res.status === "delivered" ? "PDF를 전달했습니다." : "PDF가 저장되었습니다.");
+              }).catch(function(err){
+                if (err && err.code === "declined"){ toast("저장을 취소했습니다."); return; }
+                directDownload(r.blob, r.filename);
+                toast("PDF 다운로드 완료 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
+              });
+            }
+            directDownload(r.blob, r.filename);
+            toast("PDF 다운로드 완료 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
+          });
+        });
+      });
+    });
   });
+
+  // "이메일로 보내기": generates the same PDF, then either hands it straight
+  // to the OS share sheet (pick Mail/Gmail there and the PDF arrives already
+  // attached to a new draft) or, where sharing isn't available (desktop),
+  // downloads the PDF and opens a pre-filled mailto: draft — mailto links
+  // cannot attach files themselves, so the toast tells the client to attach
+  // the just-downloaded PDF (plus their other prepared documents) by hand.
+  if (emailBtn){
+    emailBtn.addEventListener("click", function(){
+      withButtonBusy(emailBtn, "PDF 준비 중…", function(){
+        return generatePdfBlob().then(function(r){
+          var file;
+          try{ file = new File([r.blob], r.filename, { type: "application/pdf" }); }catch(e){}
+          if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+            return navigator.share({
+              files: [file],
+              title: "상속세 준비서류",
+              text: "공유 화면에서 메일 앱을 선택하시면 이 PDF가 첨부된 메일이 열립니다. 준비하신 나머지 서류도 함께 첨부해 " + EMAIL_TO + "로 보내주세요."
+            }).then(function(){
+              toast("공유 화면에서 메일 앱을 선택해 주세요.");
+            }).catch(function(err){
+              if (err && err.name === "AbortError"){ toast("공유를 취소했습니다."); return; }
+              return mailtoFallback(r);
+            });
+          }
+          return mailtoFallback(r);
+        });
+      });
+    });
+  }
+
+  function mailtoFallback(r){
+    directDownload(r.blob, r.filename);
+    var subject = "상속세 준비서류 - " + (r.name || "확인서");
+    var body = "원제우세무사사무소 안녕하세요.\n\n" +
+      "상속세 준비서류를 방금 " + r.filename + " 파일로 내려받았습니다. 이 메일에 그 PDF 파일과 준비된 나머지 서류를 함께 첨부해서 보내드립니다.\n\n" +
+      "(내려받은 PDF 파일을 이 메일에 직접 첨부해 주세요.)";
+    var mailto = "mailto:" + EMAIL_TO +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+    window.location.href = mailto;
+    toast("PDF 다운로드 완료 · 열린 메일에 파일을 첨부해 보내주세요.");
+  }
 })();
 </script>
 </body>
