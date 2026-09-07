@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상속세 준비서류 자가진단</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --paper:#f4f0e6;
+    --raised:#fffdf8;
+    --ink:#26241f;
+    --ink-soft:#6b6455;
+    --ink-faint:#9a927e;
+    --navy:#1f3a52;
+    --navy-soft:#e8eef1;
+    --seal:#a23b2e;
+    --seal-soft:#f3e1dd;
+    --missing:#8a8371;
+    --missing-soft:#eeece3;
+    --line:#ddd4bf;
+    --shadow: 0 1px 2px rgba(38,36,31,0.06), 0 4px 14px rgba(38,36,31,0.05);
+    --focus:#1f3a52;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#1a1c1a;
+      --raised:#232520;
+      --ink:#ece6d8;
+      --ink-soft:#b3aa96;
+      --ink-faint:#7d7666;
+      --navy:#8fb2cc;
+      --navy-soft:#26333b;
+      --seal:#e2766a;
+      --seal-soft:#3a2622;
+      --missing:#948c78;
+      --missing-soft:#2c2c26;
+      --line:#3a3a32;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+      --focus:#cfe0eb;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1a1c1a;
+    --raised:#232520;
+    --ink:#ece6d8;
+    --ink-soft:#b3aa96;
+    --ink-faint:#7d7666;
+    --navy:#8fb2cc;
+    --navy-soft:#26333b;
+    --seal:#e2766a;
+    --seal-soft:#3a2622;
+    --missing:#948c78;
+    --missing-soft:#2c2c26;
+    --line:#3a3a32;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 14px rgba(0,0,0,0.25);
+    --focus:#cfe0eb;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Noto Sans KR","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:96px;
+  }
+  h1,h2,h3{font-family:"Noto Serif KR",serif; text-wrap:balance; margin:0;}
+
+  .wrap{max-width:640px; margin:0 auto; padding:0 16px;}
+
+  /* header */
+  .masthead{
+    padding:28px 0 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .masthead .office{
+    font-size:12px; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:10px;
+  }
+  .masthead h1{ font-size:22px; font-weight:700; color:var(--ink); line-height:1.35; }
+  .masthead .sub{ margin-top:6px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+
+  .fields{
+    display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    margin:18px 0 4px;
+  }
+  .fields .field-wide{ grid-column:1 / -1; }
+  .field label{
+    display:block; font-size:11.5px; color:var(--ink-faint); margin-bottom:5px; letter-spacing:.02em;
+  }
+  .field input{
+    width:100%; font:inherit; font-size:14.5px; color:var(--ink);
+    background:var(--raised); border:1px solid var(--line); border-radius:8px;
+    padding:9px 10px;
+  }
+  .field input:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+  .field input::placeholder{ color:var(--ink-faint); }
+
+  .lead-note{
+    margin:16px 0 20px; font-size:13px; color:var(--ink-soft); line-height:1.5;
+  }
+  .lead-note b{ color:var(--ink); }
+
+  /* sections */
+  .section{ margin-bottom:22px; }
+  .section-head{
+    display:flex; align-items:baseline; gap:9px; margin-bottom:8px;
+    padding-bottom:7px; border-bottom:1px solid var(--line);
+  }
+  .section-head .no{
+    font-family:"Noto Serif KR",serif; font-size:15px; color:var(--navy); font-weight:700;
+  }
+  .section-head h2{ font-size:16px; color:var(--ink); }
+  .section-head .hint{ font-size:12px; color:var(--ink-faint); margin-left:auto; }
+
+  .item{
+    display:flex; align-items:flex-start; gap:12px;
+    padding:11px 4px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .item:last-child{ border-bottom:none; }
+  .item:focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:6px; }
+
+  .box{
+    flex:none; width:22px; height:22px; margin-top:1px;
+    border:1.5px solid var(--ink-faint);
+    border-radius:6px;
+    background:var(--raised);
+    display:flex; align-items:center; justify-content:center;
+    transition:background .12s ease, border-color .12s ease;
+  }
+  .box svg{ width:13px; height:13px; opacity:0; transition:opacity .1s ease; }
+  .item[aria-checked="true"] .box{ background:var(--seal); border-color:var(--seal); }
+  .item[aria-checked="true"] .box svg{ opacity:1; }
+
+  .item-text{ flex:1; min-width:0; }
+  .item-label{ font-size:14.5px; color:var(--ink); line-height:1.45; }
+  .item[aria-checked="true"] .item-label{ color:var(--ink-soft); }
+  .item-note{ display:block; font-size:12px; color:var(--ink-faint); margin-top:2px; line-height:1.5; }
+  .item-help{ display:block; font-size:11.5px; color:var(--ink-faint); margin-top:3px; line-height:1.5; font-style:italic; }
+
+  .req-tag{
+    display:inline-block; margin-left:7px; font-size:10px; font-weight:700; letter-spacing:.02em;
+    vertical-align:1px;
+  }
+  .req-tag.req-must{ color:var(--navy); }
+  .req-tag.req-cond{ color:var(--ink-faint); font-weight:600; }
+  .req-tag::before{ content:"("; }
+  .req-tag::after{ content:")"; }
+
+  .section-secondary .section-head .no{ color:var(--seal); }
+  .section-secondary .section-head h2{ color:var(--seal); }
+
+  .section-intro{
+    font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+    background:var(--navy-soft); border-radius:8px; padding:9px 11px; margin:2px 0 8px;
+  }
+
+  .freetext{ margin-top:8px; padding-top:8px; border-top:1px dashed var(--line); }
+  .freetext-label{ display:block; font-size:12px; color:var(--ink-soft); line-height:1.5; margin-bottom:6px; }
+  .freetext textarea{
+    width:100%; font:inherit; font-size:13.5px; color:var(--ink);
+    background:var(--raised); border:1px solid var(--line); border-radius:8px;
+    padding:8px 10px; resize:vertical;
+  }
+  .freetext textarea:focus{ outline:2px solid var(--focus); outline-offset:1px; }
+  .freetext textarea::placeholder{ color:var(--ink-faint); }
+
+  .status-tag{
+    flex:none; font-size:11px; font-weight:700; padding:3px 8px; border-radius:100px;
+    margin-top:1px; letter-spacing:.02em;
+    background:var(--missing-soft); color:var(--missing);
+  }
+  .item[aria-checked="true"] .status-tag{ background:var(--seal-soft); color:var(--seal); }
+
+  .footnote{
+    font-size:12px; color:var(--ink-faint); line-height:1.7;
+    padding:14px 4px 4px;
+    border-top:1px dashed var(--line);
+    margin-top:4px;
+  }
+
+  /* bottom action bar */
+  .actionbar{
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--raised);
+    border-top:1px solid var(--line);
+    padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 16px rgba(0,0,0,.06);
+  }
+  .actionbar-inner{ max-width:640px; margin:0 auto; display:flex; gap:10px; align-items:center; }
+  .actionbar .status{ font-size:12.5px; color:var(--ink-soft); flex:1; }
+  .actionbar .status b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+  .pdf-btn{
+    flex:none;
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--navy); color:#fff;
+    border:none; border-radius:9px;
+    padding:11px 18px; font-family:"Noto Sans KR",sans-serif; font-size:14px; font-weight:700;
+    cursor:pointer;
+  }
+  .pdf-btn:active{ transform:translateY(1px); }
+  .pdf-btn:disabled{ opacity:.55; cursor:default; }
+  .pdf-btn svg{ width:16px; height:16px; }
+
+  .toast{
+    position:fixed; left:50%; bottom:76px; transform:translate(-50%,8px);
+    background:var(--ink); color:var(--paper);
+    font-size:13px; padding:9px 16px; border-radius:100px;
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+    max-width:88%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    z-index:40;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  /* print root, rasterized for the PDF via html2pdf.js. Kept out of layout
+     with display:none, toggled to block only while generating.
+     Deliberately left position:static (the default) — html2pdf.js's own
+     worker re-parents a clone of this element into ITS OWN absolutely
+     positioned container (height:auto, so it sizes to its in-flow content).
+     Giving #printRoot its own position:fixed/absolute here works against
+     that: a fixed child escapes html2pdf's container to viewport
+     coordinates, and an absolutely positioned child is taken out of flow
+     and doesn't contribute to the container's auto height — either way the
+     container collapses to height 0 and html2canvas captures a blank page.
+     Plain static flow lets html2pdf's container measure it correctly. */
+  #printRoot{ display:none; width:794px; background:#ffffff; color:#26241f; }
+
+  @media (max-width:380px){
+    .fields{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="office">원제우세무사사무소 · 상속세 신고 준비 · 1차 요청 자료</div>
+    <h1>상속세 준비서류 자가진단</h1>
+    <p class="sub">항목을 눌러 준비된 서류는 체크해 주세요. 체크하면 <b>준비</b>, 체크하지 않으면 <b>없음</b>으로 표시되어 PDF에 정리됩니다.</p>
+  </div>
+
+  <div class="fields">
+    <div class="field field-wide">
+      <label for="f-name">상속인 성명</label>
+      <input id="f-name" type="text" placeholder="예: 홍길동" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="f-date">상속개시일(사망일)</label>
+      <input id="f-date" type="date">
+    </div>
+    <div class="field">
+      <label for="f-manager">담당자</label>
+      <input id="f-manager" type="text" placeholder="원제우세무사사무소">
+    </div>
+  </div>
+
+  <p class="lead-note">(<b>필수</b>)는 꼭 준비해 주셔야 하는 서류이고, (해당시)는 본인 상황에 해당할 때만 준비하시면 됩니다.</p>
+
+  <div id="sections"></div>
+
+  <p class="footnote">
+    ※ 해당 사항이 없는 서류는 체크하지 않고 그대로 두시면 됩니다.<br>
+    ※ 원본이 필요한 서류(잔액증명서 등)는 사본이 아닌 원본으로 준비해 주세요.<br>
+    ※ 문의: 원제우세무사사무소 · 032-321-4521 · taxmancall.com
+  </p>
+</div>
+
+<div class="actionbar">
+  <div class="actionbar-inner">
+    <div class="status"><b id="bar-checked">0</b> / <span id="bar-total">0</span> 준비완료</div>
+    <button class="pdf-btn" id="pdf-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      PDF 다운로드
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="printRoot" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var SECTIONS = [
+    { no:"①", title:"기본서류", items:[
+      { label:"사망진단서", note:"또는 시체검안서", req:"필수" },
+      { label:"가족관계증명서·기본증명서", note:"피상속인 및 상속인 전원, 상세로 발급", req:"필수" },
+      { label:"제적등본", note:"2008년 이전 사망 등 특수한 경우만 (해당 여부는 담당자가 확인)",
+        help:"피상속인이 2007년 12월 31일 이전에 사망(사망신고)한 경우, 또는 상속받을 사람이 먼저 사망해 그 자녀가 대신 상속받는 경우(대습상속)처럼 가족관계증명서만으로는 확인되지 않는 이력을 확인해야 할 때 필요합니다.", req:"해당시" },
+      { label:"상속인 전원 신분증 사본", note:"미성년자는 신분증 대신 기본증명서로 갈음", req:"필수" },
+      { label:"안심상속 원스톱서비스 결과지", note:"정부24 또는 주민센터 신청, 사망일이 속한 달 말일부터 6개월 이내 신청",
+        help:"한 번 신청하면 부동산·금융거래·자동차·국민연금 등을 한꺼번에 조회해 주는 서비스입니다. 신청은 1회로 충분합니다. 결과는 기관별로 최대 30일까지 순차적으로 문자·정부24 '나의 서비스'에서 확인되니, 며칠 늦더라도 다시 신청하지 마시고 기다려 주세요.", req:"필수" },
+      { label:"상속재산분할협의서", note:"작성한 경우", req:"해당시" },
+      { label:"대습상속 관련 확인서류", note:"해당 시",
+        help:"원래 상속받을 자녀 등이 피상속인보다 먼저 사망해서, 그 배우자나 자녀가 대신 상속받는 경우입니다.", req:"해당시" }
+    ]},
+    { no:"②", title:"부동산", items:[
+      { label:"등기부등본", note:"전체 부동산", req:"필수" },
+      { label:"토지대장·건축물대장", req:"필수" },
+      { label:"공시가격 확인자료", note:"가지고 계시면 제출 (없으면 저희가 직접 조회 가능)", req:"해당시" },
+      { label:"임대차계약서", note:"임대 중인 경우", req:"해당시" }
+    ],
+      freeText:{ label:"등기부등본·토지대장을 준비하지 못하셨다면, 부동산 주소(지번)만 적어주세요. 저희가 직접 발급받아 확인하겠습니다.",
+        placeholder:"예: 경기도 부천시 소향로 135 (또는 지번 주소)" } },
+    { no:"③", title:"금융재산", items:[
+      { label:"전 금융기관 사망일 기준 잔액증명서", note:"원본", req:"필수" },
+      { label:"사망일 기준 최근 10년 거래내역", note:"재산 형성 과정 확인용", req:"필수" },
+      { label:"보험금 지급명세서·보험계약 확인서", req:"해당시" },
+      { label:"주식 잔고증명서", note:"상장주식 · 종목코드 포함", req:"해당시" },
+      { label:"비상장주식 평가자료", note:"최근 3개년 재무제표 등", req:"해당시" }
+    ]},
+    { no:"④", title:"채무·공과금", items:[
+      { label:"금융기관 부채증명원", note:"사망일 기준", req:"해당시" },
+      { label:"임대보증금 반환채무 내역", req:"해당시" },
+      { label:"미납 세금·공과금 확인자료", req:"해당시" },
+      { label:"장례비용 영수증", req:"필수" }
+    ]},
+    { no:"⑤", title:"사전증여·기타", items:[
+      { label:"상속개시 전 10년(상속인)·5년(상속인 외) 증여세 신고서", note:"과거에 증여받은 적이 있는 경우", req:"해당시" },
+      { label:"가업·영농상속공제 관련 서류", note:"해당 시", req:"해당시" },
+      { label:"상속포기·한정승인 관련 서류", note:"해당 시",
+        help:"물려받을 재산보다 빚이 더 많아 법원에 상속포기·한정승인을 신청한 경우입니다.", req:"해당시" },
+      { label:"세무대리 위임장", note:"저희 사무소에 신고를 맡기실 때 필요 (상속인 전원 날인)", req:"필수" }
+    ]},
+    { no:"⑥", title:"거주자·비거주자 판정", hint:"해외 거주 이력이 있는 경우만 해당",
+      intro:"먼저 비거주자에 해당하는지부터 확인해 주세요. 피상속인이 사망 당시 국내에 주소가 없거나, 183일 이상 계속 국외에 거주한 경우 등은 '비거주자'로 판정될 수 있습니다. 위와 같은 사정이 없다면 이 항목은 모두 건너뛰셔도 됩니다.",
+      items:[
+      { label:"출입국사실증명서", note:"최근 5년", req:"해당시" },
+      { label:"외국인등록사실증명서", note:"해당 시", req:"해당시" },
+      { label:"해외 재직증명서 또는 소득 증빙", req:"해당시" },
+      { label:"가족 거주지 확인자료", req:"해당시" }
+    ]}
+  ];
+
+  // 2차 요청 자료: 상황이 확인될 때만 추가로 요청하는 서류 (기본 총계에는 포함하지 않음)
+  var SECONDARY = [
+    { label:"주식 계좌 입출금 내역", reason:"상속인 명의 자금을 피상속인이 받아 운용한 경우", req:"해당시" }
+  ];
+
+  var checked = {}; // id -> bool
+  var checkedSecondary = {}; // id -> bool
+  var freeTextValues = {}; // section index -> string
+  var total = 0;
+  SECTIONS.forEach(function(s){ total += s.items.length; });
+
+  var sectionsEl = document.getElementById("sections");
+  var barChecked = document.getElementById("bar-checked");
+  var barTotal = document.getElementById("bar-total");
+
+  barTotal.textContent = total;
+
+  function itemId(si, ii){ return si + "-" + ii; }
+  function secId(ii){ return "s" + ii; }
+  function storeFor(id){ return id.charAt(0) === "s" ? checkedSecondary : checked; }
+
+  function rowHtml(item, id, isChecked){
+    var reqClass = item.req === "필수" ? "req-must" : "req-cond";
+    return '<span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>' +
+      '<span class="item-text">' +
+        '<span class="item-label">' + item.label + '<span class="req-tag ' + reqClass + '">' + item.req + '</span></span>' +
+        (item.note ? '<span class="item-note">' + item.note + '</span>' : '') +
+        (item.reason ? '<span class="item-note">사유: ' + item.reason + '</span>' : '') +
+        (item.help ? '<span class="item-help">' + item.help + '</span>' : '') +
+      '</span>' +
+      '<span class="status-tag">' + (isChecked ? "준비" : "없음") + '</span>';
+  }
+
+  function makeRow(item, id, isChecked){
+    var row = document.createElement("div");
+    row.className = "item";
+    row.setAttribute("role", "checkbox");
+    row.setAttribute("tabindex", "0");
+    row.setAttribute("aria-checked", isChecked ? "true" : "false");
+    row.dataset.id = id;
+    row.innerHTML = rowHtml(item, id, isChecked);
+    row.addEventListener("click", function(){ toggle(id); });
+    row.addEventListener("keydown", function(e){
+      if (e.key === " " || e.key === "Enter"){ e.preventDefault(); toggle(id); }
+    });
+    return row;
+  }
+
+  function render(){
+    sectionsEl.innerHTML = "";
+    SECTIONS.forEach(function(section, si){
+      var sec = document.createElement("div");
+      sec.className = "section";
+
+      var head = document.createElement("div");
+      head.className = "section-head";
+      head.innerHTML = '<span class="no">' + section.no + '</span><h2>' + section.title + '</h2>' +
+        (section.hint ? '<span class="hint">' + section.hint + '</span>' : '');
+      sec.appendChild(head);
+
+      if (section.intro){
+        var intro = document.createElement("p");
+        intro.className = "section-intro";
+        intro.textContent = section.intro;
+        sec.appendChild(intro);
+      }
+
+      section.items.forEach(function(item, ii){
+        var id = itemId(si, ii);
+        sec.appendChild(makeRow(item, id, !!checked[id]));
+      });
+
+      if (section.freeText){
+        var ftWrap = document.createElement("div");
+        ftWrap.className = "freetext";
+        var ftLabel = document.createElement("label");
+        ftLabel.className = "freetext-label";
+        ftLabel.setAttribute("for", "ft-" + si);
+        ftLabel.textContent = section.freeText.label;
+        var ftInput = document.createElement("textarea");
+        ftInput.id = "ft-" + si;
+        ftInput.rows = 2;
+        ftInput.placeholder = section.freeText.placeholder || "";
+        ftInput.value = freeTextValues[si] || "";
+        ftInput.addEventListener("input", function(){ freeTextValues[si] = ftInput.value; });
+        ftWrap.appendChild(ftLabel);
+        ftWrap.appendChild(ftInput);
+        sec.appendChild(ftWrap);
+      }
+
+      sectionsEl.appendChild(sec);
+    });
+
+    if (SECONDARY.length){
+      var sec2 = document.createElement("div");
+      sec2.className = "section section-secondary";
+
+      var head2 = document.createElement("div");
+      head2.className = "section-head";
+      head2.innerHTML = '<span class="no" style="color:var(--seal);">➕</span><h2>2차 요청 자료</h2>' +
+        '<span class="hint">담당자가 필요하다고 안내한 경우에만</span>';
+      sec2.appendChild(head2);
+
+      SECONDARY.forEach(function(item, ii){
+        var id = secId(ii);
+        sec2.appendChild(makeRow(item, id, !!checkedSecondary[id]));
+      });
+
+      sectionsEl.appendChild(sec2);
+    }
+  }
+
+  function toggle(id){
+    var store = storeFor(id);
+    store[id] = !store[id];
+    updateCounts();
+    var row = sectionsEl.querySelector('[data-id="' + id + '"]');
+    if (row){
+      row.setAttribute("aria-checked", store[id] ? "true" : "false");
+      row.querySelector(".status-tag").textContent = store[id] ? "준비" : "없음";
+    }
+  }
+
+  function updateCounts(){
+    var n = 0;
+    Object.keys(checked).forEach(function(k){ if (checked[k]) n++; });
+    barChecked.textContent = n;
+  }
+
+  render();
+  updateCounts();
+
+  // ---- toast ----
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 3200);
+  }
+
+  // ---- PDF build ----
+  function pad(n){ return n < 10 ? "0" + n : "" + n; }
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "." + pad(d.getMonth() + 1) + "." + pad(d.getDate());
+  }
+  function formatDateInput(v){
+    if (!v) return "-";
+    var p = v.split("-");
+    if (p.length !== 3) return v;
+    return p[0] + "." + p[1] + "." + p[2];
+  }
+
+  function buildPrintHtml(){
+    var name = document.getElementById("f-name").value.trim() || "-";
+    var date = formatDateInput(document.getElementById("f-date").value);
+    var manager = document.getElementById("f-manager").value.trim() || "원제우세무사사무소";
+    var n = 0;
+    Object.keys(checked).forEach(function(k){ if (checked[k]) n++; });
+
+    function printRow(item, ok){
+      var reqColor = item.req === "필수" ? "#1f3a52" : "#9a927e";
+      var extra = item.note ? ' <span style="color:#9a927e;font-size:11px;">(' + item.note + ')</span>' : '';
+      if (item.reason) extra += ' <span style="color:#9a927e;font-size:11px;">사유: ' + item.reason + '</span>';
+      return '<tr>' +
+        '<td style="padding:7px 0;font-size:12.5px;color:#26241f;border-bottom:1px solid #e6dfcd;">' +
+          item.label + ' <span style="font-size:10px;font-weight:700;color:' + reqColor + ';">(' + item.req + ')</span>' + extra +
+        '</td>' +
+        '<td style="padding:7px 0 7px 10px;text-align:right;vertical-align:top;border-bottom:1px solid #e6dfcd;white-space:nowrap;">' +
+          '<span style="display:inline-block;font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px;' +
+          (ok ? 'background:#f3e1dd;color:#a23b2e;' : 'background:#eeece3;color:#8a8371;') + '">' +
+          (ok ? '준비' : '없음') + '</span>' +
+        '</td>' +
+      '</tr>';
+    }
+
+    var sectionsHtml = SECTIONS.map(function(section, si){
+      var rows = section.items.map(function(item, ii){
+        return printRow(item, !!checked[itemId(si, ii)]);
+      }).join("");
+      var introHtml = section.intro ?
+        '<div style="background:#e8eef1;border-radius:6px;padding:7px 10px;margin:4px 0 8px;font-size:11px;color:#4a5a66;line-height:1.6;">' + section.intro + '</div>' : '';
+      var ftVal = (freeTextValues[si] || "").trim();
+      var ftHtml = ftVal ?
+        '<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd4bf;font-size:11px;color:#26241f;"><b style="color:#9a927e;font-weight:700;">주소(지번) 메모:</b> ' + ftVal.replace(/</g,"&lt;") + '</div>' : '';
+      return '<div style="margin-bottom:16px;">' +
+        '<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:5px;border-bottom:1.5px solid #1f3a52;margin-bottom:2px;">' +
+          '<span style="font-size:14px;font-weight:700;color:#1f3a52;">' + section.no + '</span>' +
+          '<span style="font-size:14px;font-weight:700;color:#26241f;">' + section.title + '</span>' +
+          (section.hint ? '<span style="font-size:10.5px;color:#9a927e;margin-left:auto;">' + section.hint + '</span>' : '') +
+        '</div>' +
+        introHtml +
+        '<table style="width:100%;border-collapse:collapse;">' + rows + '</table>' +
+        ftHtml +
+      '</div>';
+    }).join("");
+
+    var secondaryHtml = "";
+    if (SECONDARY.length){
+      var rows2 = SECONDARY.map(function(item, ii){
+        return printRow(item, !!checkedSecondary[secId(ii)]);
+      }).join("");
+      secondaryHtml = '<div style="margin-bottom:16px;">' +
+        '<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:5px;border-bottom:1.5px solid #a23b2e;margin-bottom:2px;">' +
+          '<span style="font-size:14px;font-weight:700;color:#a23b2e;">2차</span>' +
+          '<span style="font-size:14px;font-weight:700;color:#26241f;">요청 자료</span>' +
+          '<span style="font-size:10.5px;color:#9a927e;margin-left:auto;">담당자 안내 시에만 해당</span>' +
+        '</div>' +
+        '<table style="width:100%;border-collapse:collapse;">' + rows2 + '</table>' +
+      '</div>';
+    }
+
+    return (
+      '<div style="width:794px;padding:48px 56px 40px;font-family:\'Noto Sans KR\',sans-serif;color:#26241f;background:#ffffff;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #1f3a52;padding-bottom:16px;margin-bottom:22px;">' +
+          '<div>' +
+            '<div style="font-family:\'Noto Serif KR\',serif;font-size:22px;font-weight:700;color:#1f3a52;">상속세 신고 준비서류 확인서</div>' +
+            '<div style="font-size:12px;color:#6b6455;margin-top:5px;">작성일 ' + todayStr() + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;font-size:11px;color:#9a927e;line-height:1.7;">' +
+            '원제우세무사사무소<br>세무사 원제우 (등록번호 W35563)<br>부천시 소향로 135, 3층 · 032-321-4521' +
+          '</div>' +
+        '</div>' +
+
+        '<table style="width:100%;border-collapse:collapse;margin-bottom:22px;font-size:12.5px;">' +
+          '<tr>' +
+            '<td style="width:16%;color:#9a927e;padding:4px 0;">상속인 성명</td><td style="width:34%;font-weight:700;padding:4px 0;">' + name + '</td>' +
+            '<td style="width:16%;color:#9a927e;padding:4px 0;">상속개시일</td><td style="width:34%;font-weight:700;padding:4px 0;">' + date + '</td>' +
+          '</tr>' +
+          '<tr>' +
+            '<td style="color:#9a927e;padding:4px 0;">담당자</td><td style="font-weight:700;padding:4px 0;">' + manager + '</td>' +
+            '<td style="color:#9a927e;padding:4px 0;">준비 현황</td><td style="font-weight:700;padding:4px 0;color:#a23b2e;">' + n + ' / ' + total + '건 준비완료</td>' +
+          '</tr>' +
+        '</table>' +
+
+        sectionsHtml +
+        secondaryHtml +
+
+        '<div style="margin-top:28px;padding-top:16px;border-top:1px dashed #ddd4bf;font-size:10.5px;color:#9a927e;line-height:1.8;">' +
+          '※ &quot;없음&quot;으로 표시된 항목은 상속인이 자가진단 시점에 준비하지 못했거나 해당 사항이 없는 서류입니다. 세부 확인은 담당자와 별도 상담 바랍니다.' +
+        '</div>' +
+
+        '<div style="display:flex;justify-content:space-between;margin-top:34px;font-size:12px;">' +
+          '<div>상속인 성명: ' + name + '&nbsp;&nbsp;&nbsp;&nbsp;(서명 또는 인)</div>' +
+          '<div>제출일: ______________</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ---- download ----
+  function directDownload(blob, filename){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }
+
+  var pdfBtn = document.getElementById("pdf-btn");
+  var printRoot = document.getElementById("printRoot");
+
+  pdfBtn.addEventListener("click", function(){
+    if (pdfBtn.disabled) return;
+    pdfBtn.disabled = true;
+    var originalHtml = pdfBtn.innerHTML;
+    pdfBtn.textContent = "PDF 생성 중…";
+
+    printRoot.innerHTML = buildPrintHtml();
+    // Make it real (in-flow, visible) just for the capture — html2canvas
+    // needs an actually-rendered element, not a hidden one.
+    printRoot.style.display = "block";
+
+    var name = document.getElementById("f-name").value.trim();
+    var filename = "상속세_준비서류_" + (name || "확인서") + ".pdf";
+
+    var opts = {
+      margin: 0,
+      filename: filename,
+      image: { type: "jpeg", quality: 0.97 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] }
+    };
+
+    function cleanup(){
+      printRoot.style.display = "none";
+      printRoot.innerHTML = "";
+      pdfBtn.disabled = false;
+      pdfBtn.innerHTML = originalHtml;
+    }
+
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve())
+      .then(function(){
+        // give the freshly-shown content one real paint before capturing
+        return new Promise(function(resolve){
+          requestAnimationFrame(function(){ requestAnimationFrame(resolve); });
+        });
+      })
+      .then(function(){
+        return window.html2pdf().set(opts).from(printRoot).outputPdf("blob");
+      })
+      .then(function(blob){
+        directDownload(blob, filename);
+        toast("PDF 다운로드가 시작되었습니다.");
+      })
+      .catch(function(err){
+        console.error(err);
+        toast("PDF 생성 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      })
+      .finally(cleanup);
+  });
+})();
+</script>
+</body>
+</html>
