@@ -276,6 +276,16 @@
     .actionbar-inner .status{ flex-basis:100%; order:-1; margin-bottom:6px; }
     .pdf-btn{ flex:1; justify-content:center; padding-left:12px; padding-right:12px; }
   }
+
+/* 맨 위로 버튼 */
+#topBtn{position:fixed;right:18px;bottom:22px;width:48px;height:48px;border:none;border-radius:50%;
+  background:var(--navy);color:#fff;font-size:18px;line-height:1;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.28);opacity:0;visibility:hidden;
+  transition:opacity .25s,visibility .25s,transform .15s;z-index:1000;display:flex;align-items:center;justify-content:center;}
+#topBtn.show{opacity:1;visibility:visible;}
+#topBtn:hover{transform:translateY(-2px);}
+#topBtn:active{transform:translateY(0);}
+@media(max-width:600px){#topBtn{right:14px;bottom:16px;width:44px;height:44px;}}
 </style>
 
 <div class="wrap">
@@ -311,6 +321,7 @@
   <p class="footnote">
     ※ 해당 사항이 없는 서류는 체크하지 않고 그대로 두시면 됩니다.<br>
     ※ 원본이 필요한 서류(잔액증명서 등)는 사본이 아닌 원본으로 준비해 주세요.<br>
+    ※ 상속재산분할협의서가 아직 없다면 양식을 사용하세요 — <a href="https://taxmancall.com/inheritance-tax/forms/division-agreement.docx" download="상속재산분할협의서_양식.docx" style="color:inherit;font-weight:700;text-decoration:underline;">Word</a> · <a href="https://taxmancall.com/inheritance-tax/forms/division-agreement.pdf" download="상속재산분할협의서_양식.pdf" style="color:inherit;font-weight:700;text-decoration:underline;">PDF</a><br>
     ※ 문의: 원제우세무사사무소 · Tel 032-321-4521 · Fax 02-6280-4521<br>
     ※ 이메일 taxmancall@gmail.com · 카카오톡 taxmancall · taxmancall.com
   </p>
@@ -325,7 +336,7 @@
       · 산업재해보상보험법에 따른 유족보상연금·유족보상일시금<br>
       · 근로기준법에 따른 유족보상금
     </div>
-    <div class="exclude-box-src">※ 근거: 상속세 및 증여세법 제10조 단서</div>
+    <div class="exclude-box-src">※ 근거: 상속세 및 증여세법 제10조 단서 · 유족연금을 받을지 본인 연금을 받을지 선택하는 문제는 <a href="https://taxmancall.com/inheritance-tax/#pension" style="color:inherit;font-weight:700;text-decoration:underline;">유족연금 안내</a>를 참고하세요.</div>
   </div>
 
   <div class="exclude-box" style="background:var(--seal-soft);">
@@ -359,7 +370,13 @@
 
 <div id="printRoot" aria-hidden="true"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="js/html2pdf.bundle.min.js"></script>
+<script>
+// 저장소에 올려둔 로컬 번들을 우선 사용하고, 없으면 CDN으로 폴백합니다.
+if (!window.html2pdf) {
+  document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>');
+}
+</script>
 <script>
 (function(){
   "use strict";
@@ -376,7 +393,11 @@
       { label:"상속재산분할협의서", note:"작성한 경우", req:"해당시", group:"상속인 서류" },
       { label:"대습상속 관련 확인서류", note:"해당 시",
         help:"원래 상속받을 자녀 등이 피상속인보다 먼저 사망해서, 그 배우자나 자녀가 대신 상속받는 경우입니다.", req:"해당시", group:"상속인 서류" },
-      { label:"가족관계증명서·기본증명서", note:"피상속인 및 상속인 전원, 상세로 발급", req:"필수", group:"공통 서류" },
+      { label:"특별대리인 선임 심판서", note:"미성년 상속인이 있는 경우",
+        help:"미성년 자녀와 친권자(부모)가 함께 상속인이면 이해상반행위에 해당해(민법 제921조), 부모가 자녀를 대신해 분할협의서에 날인할 수 없습니다. 가정법원에서 특별대리인을 선임받아야 하며(자녀 1명당 1명씩), 아직 선임 전이라면 담당자에게 알려주세요. 청구 절차를 안내해 드립니다.", req:"해당시", group:"상속인 서류" },
+      { label:"피상속인 가족관계등록부 5종 증명서", note:"가족관계·기본·혼인관계·입양관계·친양자입양관계, 모두 '상세'로 발급",
+        help:"상속인을 확정하는 기본 서류입니다. 반드시 '상세'로 발급해 주세요 — 일반증명서에는 사망한 자녀나 이혼한 배우자 등 과거 이력이 빠져 있습니다. 친양자입양관계증명서는 발급이 제한되어 있어 상속 처리 목적을 소명해야 발급됩니다. 형제자매가 상속인이 되는 경우(3순위)나 2008년 이전 이력 확인이 필요한 경우에는 제적등본이 추가로 필요하며, 해당 여부는 담당자가 확인해 안내해 드립니다.", req:"필수", group:"공통 서류" },
+      { label:"상속인 전원 가족관계증명서·기본증명서", note:"상세로 발급", req:"필수", group:"공통 서류" },
       { label:"안심상속 원스톱서비스 결과지", note:"정부24 또는 주민센터 신청, 사망일이 속한 달 말일부터 6개월 이내 신청",
         help:"한 번 신청하면 부동산·금융거래·자동차·국민연금 등을 한꺼번에 조회해 주는 서비스입니다. 신청은 1회로 충분합니다. 결과는 기관별로 최대 30일까지 순차적으로 문자·정부24 '나의 서비스'에서 확인되니, 며칠 늦더라도 다시 신청하지 마시고 기다려 주세요. 금융감독원 상속인 금융거래조회 서비스로 한 번 더 교차 확인하시면 더 정확합니다.", req:"필수", group:"공통 서류" }
     ],
@@ -632,10 +653,10 @@
   }
 
   function buildPrintHtml(){
-    var name = document.getElementById("f-name").value.trim() || "-";
-    var date = formatDateInput(document.getElementById("f-date").value);
-    var phone = document.getElementById("f-phone").value.trim() || "-";
-    var manager = document.getElementById("f-manager").value.trim() || "원제우세무사사무소";
+    var name = escapeHtml(document.getElementById("f-name").value.trim() || "-");
+    var date = escapeHtml(formatDateInput(document.getElementById("f-date").value));
+    var phone = escapeHtml(document.getElementById("f-phone").value.trim() || "-");
+    var manager = escapeHtml(document.getElementById("f-manager").value.trim() || "원제우세무사사무소");
     var n = 0;
     Object.keys(checked).forEach(function(k){ if (checked[k]) n++; });
 
@@ -689,7 +710,7 @@
       var ftVal = (freeTextValues[si] || "").trim();
       var ftHtml = ftVal ?
         '<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd4bf;font-size:11px;color:#26241f;"><b style="color:#9a927e;font-weight:700;">메모:</b> ' + ftVal.replace(/</g,"&lt;") + '</div>' : '';
-      return '<div style="margin-bottom:16px;">' +
+      return '<div style="margin-bottom:16px;page-break-inside:avoid;">' +
         '<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:5px;border-bottom:1.5px solid #1f3a52;margin-bottom:2px;">' +
           '<span style="font-size:14px;font-weight:700;color:#1f3a52;">' + section.no + '</span>' +
           '<span style="font-size:14px;font-weight:700;color:#26241f;">' + section.title + '</span>' +
@@ -706,7 +727,7 @@
       var rows2 = SECONDARY.map(function(item, ii){
         return printRow(item, !!checkedSecondary[secId(ii)], secId(ii));
       }).join("");
-      secondaryHtml = '<div style="margin-bottom:16px;">' +
+      secondaryHtml = '<div style="margin-bottom:16px;page-break-inside:avoid;">' +
         '<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:5px;border-bottom:1.5px solid #a23b2e;margin-bottom:2px;">' +
           '<span style="font-size:14px;font-weight:700;color:#a23b2e;">2차</span>' +
           '<span style="font-size:14px;font-weight:700;color:#26241f;">요청 자료</span>' +
@@ -822,7 +843,7 @@
     // needs an actually-rendered element, not a hidden one.
     printRoot.style.display = "block";
 
-    var name = document.getElementById("f-name").value.trim();
+    var name = document.getElementById("f-name").value.trim().replace(/[\\/:*?"<>|]/g, "");
     var filename = "상속세_준비서류_" + (name || "확인서") + ".pdf";
 
     var opts = {
@@ -873,7 +894,14 @@
     });
   }
 
+  function pdfLibReady(){
+    if (window.html2pdf) return true;
+    toast("PDF 기능을 불러오지 못했습니다. 크롬·사파리 등 다른 브라우저에서 열어주세요.");
+    return false;
+  }
+
   pdfBtn.addEventListener("click", function(){
+    if (!pdfLibReady()) return;
     withButtonBusy(pdfBtn, "PDF 생성 중…", function(){
       return generatePdfBlob().then(function(r){
         return tryNativeShare(r.blob, r.filename).then(function(shared){
@@ -904,6 +932,7 @@
   // the just-downloaded PDF (plus their other prepared documents) by hand.
   if (emailBtn){
     emailBtn.addEventListener("click", function(){
+      if (!pdfLibReady()) return;
       withButtonBusy(emailBtn, "PDF 준비 중…", function(){
         return generatePdfBlob().then(function(r){
           var file;
@@ -938,6 +967,26 @@
     window.location.href = mailto;
     toast("PDF 다운로드 완료 · 열린 메일에 파일을 첨부해 보내주세요.");
   }
+})();
+</script>
+<button id="topBtn" type="button" aria-label="맨 위로">▲</button>
+<script>
+(function(){
+  var btn = document.getElementById("topBtn");
+  if (!btn) return;
+  var ticking = false;
+  function update(){
+    if (window.scrollY > 500) btn.classList.add("show");
+    else btn.classList.remove("show");
+    ticking = false;
+  }
+  window.addEventListener("scroll", function(){
+    if (!ticking){ requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+  btn.addEventListener("click", function(){
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  update();
 })();
 </script>
 </body>
