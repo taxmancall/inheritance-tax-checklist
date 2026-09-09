@@ -857,7 +857,7 @@ if (!window.html2pdf) {
     var filename = "상속세_준비서류_" + (name || "확인서") + ".pdf";
 
     var opts = {
-      margin: 0,
+      margin: [34, 0, 34, 0],  // pt — 매 페이지 상·하 약 12mm 여백 (좌우는 내부 패딩 사용)
       filename: filename,
       image: { type: "jpeg", quality: 0.97 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
