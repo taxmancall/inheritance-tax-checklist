@@ -810,7 +810,16 @@ if (!window.html2pdf) {
   // Returns a promise resolving true if the share sheet was shown
   // (accepted or cancelled — either way nothing further to do), false if
   // sharing isn't supported here and the caller should fall back.
+  // 공유시트는 모바일에서만 — 데스크톱 크롬·엣지도 Web Share를 지원해
+  // PC에서 "PDF 다운로드"를 눌렀는데 공유창이 뜨는 문제가 있었음.
+  function isMobileDevice(){
+    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === "boolean")
+      return navigator.userAgentData.mobile;
+    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  }
+
   function tryNativeShare(blob, filename){
+    if (!isMobileDevice()) return Promise.resolve(false);
     try{
       var file = new File([blob], filename, { type: "application/pdf" });
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
@@ -901,25 +910,23 @@ if (!window.html2pdf) {
     return false;
   }
 
+  // "PDF 다운로드"는 항상 저장 — 공유는 "이메일로 보내기" 버튼이 전담합니다.
   pdfBtn.addEventListener("click", function(){
     if (!pdfLibReady()) return;
     withButtonBusy(pdfBtn, "PDF 생성 중…", function(){
       return generatePdfBlob().then(function(r){
-        return tryNativeShare(r.blob, r.filename).then(function(shared){
-          if (shared) return;
-          return getDownloadsCapability().then(function(cap){
-            if (cap && typeof cap.save === "function"){
-              return cap.save({ filename: r.filename, data: r.blob }).then(function(res){
-                toast(res && res.status === "delivered" ? "PDF를 전달했습니다." : "PDF가 저장되었습니다.");
-              }).catch(function(err){
-                if (err && err.code === "declined"){ toast("저장을 취소했습니다."); return; }
-                directDownload(r.blob, r.filename);
-                toast("PDF 다운로드 완료 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
-              });
-            }
-            directDownload(r.blob, r.filename);
-            toast("PDF 다운로드 완료 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
-          });
+        return getDownloadsCapability().then(function(cap){
+          if (cap && typeof cap.save === "function"){
+            return cap.save({ filename: r.filename, data: r.blob }).then(function(res){
+              toast(res && res.status === "delivered" ? "PDF를 전달했습니다." : "PDF가 저장되었습니다.");
+            }).catch(function(err){
+              if (err && err.code === "declined"){ toast("저장을 취소했습니다."); return; }
+              directDownload(r.blob, r.filename);
+              toast("PDF가 저장되었습니다 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
+            });
+          }
+          directDownload(r.blob, r.filename);
+          toast("PDF가 저장되었습니다 · 카카오톡(taxmancall) 또는 이메일로 보내주세요.");
         });
       });
     });
@@ -938,7 +945,7 @@ if (!window.html2pdf) {
         return generatePdfBlob().then(function(r){
           var file;
           try{ file = new File([r.blob], r.filename, { type: "application/pdf" }); }catch(e){}
-          if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+          if (isMobileDevice() && file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
             return navigator.share({
               files: [file],
               title: "상속세 준비서류",
