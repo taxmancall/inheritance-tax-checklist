@@ -767,6 +767,7 @@ if (!window.html2pdf) {
         sectionsHtml +
         secondaryHtml +
 
+        '<div style="page-break-inside:avoid;">' +
         '<div style="margin-top:28px;padding-top:16px;border-top:1px dashed #ddd4bf;font-size:10.5px;color:#9a927e;line-height:1.8;">' +
           '※ 체크되지 않은 항목은 상속인이 자가진단 시점에 준비하지 못했거나 해당 사항이 없는 서류입니다. 세부 확인은 담당자와 별도 상담 바랍니다.' +
         '</div>' +
@@ -778,6 +779,7 @@ if (!window.html2pdf) {
         '<div style="display:flex;justify-content:space-between;margin-top:34px;font-size:12px;">' +
           '<div>상속인 성명: ' + name + '&nbsp;&nbsp;&nbsp;&nbsp;(서명 또는 인)</div>' +
           '<div>제출일: ______________</div>' +
+        '</div>' +
         '</div>' +
       '</div>'
     );
