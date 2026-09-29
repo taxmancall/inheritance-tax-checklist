@@ -171,6 +171,29 @@
     background:var(--navy-soft); border-radius:8px; padding:9px 11px; margin:2px 0 8px;
   }
 
+  /* 은행 방문 안내 박스 (④ 금융재산) */
+  .guide-box{
+    margin:4px 0 10px; padding:13px 14px 12px; border-radius:10px;
+    background:var(--raised); border:1px solid var(--line); box-shadow:var(--shadow);
+  }
+  .guide-box-title{ font-size:13.5px; font-weight:700; color:var(--navy); margin-bottom:4px; }
+  .guide-box-lead{ font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0 0 10px; }
+  .guide-box h4{ font-family:"Noto Sans KR",sans-serif; font-size:12.5px; font-weight:700; color:var(--ink); margin:10px 0 4px; }
+  .guide-box h4:first-of-type{ margin-top:0; }
+  .guide-list{ margin:0; padding:0; list-style:none; font-size:12.5px; color:var(--ink); line-height:1.7; }
+  .guide-list li{ padding-left:14px; position:relative; }
+  .guide-list li::before{ content:"·"; position:absolute; left:3px; color:var(--ink-faint); }
+  .guide-list .req-tag{ font-size:9.5px; }
+  .guide-list small{ display:block; font-size:11.5px; color:var(--ink-faint); line-height:1.5; }
+  .guide-say{
+    margin:6px 0 8px; padding:10px 12px; border-left:3px solid var(--seal);
+    background:var(--seal-soft); border-radius:0 8px 8px 0;
+    font-size:12.5px; color:var(--ink); line-height:1.75;
+  }
+  .guide-say b{ color:var(--seal); }
+  .guide-tip{ font-size:11.5px; color:var(--ink-faint); line-height:1.6; margin:4px 0 0; }
+  .guide-tip a{ color:inherit; font-weight:700; text-decoration:underline; }
+
   .item-group{
     font-size:11.5px; font-weight:700; color:var(--navy);
     letter-spacing:.02em; margin:10px 0 2px; padding-top:6px;
@@ -422,7 +445,29 @@ if (!window.html2pdf) {
       { label:"사업자등록증 사본", note:"피상속인이 운영하던 사업체가 있는 경우 (사무실 연락처도 함께 알려주세요)", req:"해당시" },
       { label:"기타 재산 관련 서류", note:"골동품·귀금속 등 위 항목에 없는 재산의 소유·가액 확인자료, 해당 시", req:"해당시" }
     ]},
-    { no:"④", title:"금융재산", items:[
+    { no:"④", title:"금융재산",
+      guide:{
+        title:"은행·증권사 방문 안내",
+        lead:"잔액증명서와 거래내역은 상속인이 직접 은행에 가서 받아야 합니다. 은행마다 요구서류가 조금씩 다르니, 방문 전 지점에 전화해서 \"상속인인데 사망일 기준 잔액증명서와 거래내역 발급받으러 갑니다. 필요서류가 뭔가요?\"라고 한 번 확인하시면 헛걸음을 줄일 수 있습니다.",
+        docs:[
+          { label:"피상속인 기본증명서(상세)", req:"필수", note:"사망 사실이 기재된 것 · 발급 3개월 이내" },
+          { label:"피상속인 기준 가족관계증명서(상세)", req:"필수", note:"상속인 관계 확인용 · 발급 3개월 이내" },
+          { label:"방문하는 상속인 신분증", req:"필수" },
+          { label:"제적등본", req:"해당시", note:"2008년 이전 사망, 형제·부모 상속 등 가족관계증명서만으로 상속인 확인이 안 되는 경우" },
+          { label:"위임장 + 상속인 인감증명서(또는 본인서명사실확인서) + 상속인 신분증 사본", req:"해당시", note:"상속인이 아닌 분(가족·사무소 담당자)이 대신 방문할 때 · 위임장은 은행 소정 양식이 있는지 먼저 확인" }
+        ],
+        say:"\"<b>○○○</b>(피상속인) 님이 <b>○○○○년 ○월 ○일</b>에 돌아가셨고, 저는 상속인(배우자/자녀)입니다. 상속세 신고용으로 세 가지 부탁드립니다.<br>" +
+            "① <b>사망일 기준 잔액증명서</b> — 예금·적금·대출·펀드·외화 계좌 전부, 원본으로요.<br>" +
+            "② <b>사망일부터 거슬러 10년치 거래내역</b> — 해지된 계좌 포함해서요. 엑셀 파일로도 받을 수 있으면 부탁드립니다.<br>" +
+            "③ 이 은행에 <b>다른 계좌나 대여금고, 보험·펀드 가입내역</b>이 있는지도 확인해 주세요.\"",
+        tips:[
+          "거래내역은 지점에 따라 수수료가 있거나 2~3일 걸릴 수 있습니다. 당일 못 받으면 \"우편이나 이메일로 받을 수 있나요?\"라고 물어보세요.",
+          "대리인이 갔을 때 \"상속인 전원 서류가 필요하다\"고 하면 — \"지급·해지가 아니라 잔액증명·거래내역 조회만 하는 겁니다\"라고 말씀하세요. 조회는 상속인 1인(또는 그 대리인)으로 가능하고, 예금 지급·해지만 공동상속인 전원 동의가 필요합니다.",
+          "계좌가 어디 있는지 모르면 먼저 <a href=\"https://www.gov.kr\" target=\"_blank\" rel=\"noopener\">안심상속 원스톱 서비스(정부24)</a> 또는 <a href=\"https://www.fss.or.kr\" target=\"_blank\" rel=\"noopener\">금융감독원 상속인 금융거래조회</a>로 전 금융기관 계좌를 확인한 뒤 은행별로 방문하세요. 이 서비스는 사망일 기준 잔액만 나오고 거래내역은 나오지 않습니다.",
+          "왜 10년인가요? 상속개시 전 10년 이내 상속인에게 준 사전증여는 상속재산에 합산되고(상속세 및 증여세법 제13조), 사망 전 1년·2년 이내에 인출된 큰 금액은 사용처를 소명해야 하기 때문입니다(같은 법 제15조)."
+        ]
+      },
+      items:[
       { label:"전 금융기관 사망일 기준 잔액증명서", note:"원본", req:"필수" },
       { label:"사망일 기준 최근 10년 거래내역", note:"해지·중도해지 계좌 포함, 엑셀 파일로 요청 시 분석이 빠릅니다", req:"필수" },
       { label:"보험금 지급명세서·보험계약 확인서", note:"보험증서·보험료 납입내역서, 해약환급금 계산서 포함",
@@ -492,6 +537,41 @@ if (!window.html2pdf) {
     return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+  // 은행 방문 안내 박스 — 화면(screen=true)과 PDF(screen=false) 공용
+  function guideHtml(g, screen){
+    if (!g) return "";
+    var docs = g.docs.map(function(d){
+      var tag = screen
+        ? '<span class="req-tag ' + (d.req === "필수" ? "req-must" : "req-cond") + '">' + d.req + '</span>'
+        : ' <span style="font-size:9.5px;font-weight:700;color:' + (d.req === "필수" ? "#1f3a52" : "#9a927e") + ';">(' + d.req + ')</span>';
+      var note = d.note ? (screen ? '<small>' + d.note + '</small>' : ' <span style="color:#9a927e;font-size:10.5px;">— ' + d.note + '</span>') : '';
+      return screen ? '<li>' + d.label + tag + note + '</li>'
+                    : '<div style="padding:2px 0 2px 12px;text-indent:-8px;">· ' + d.label + tag + note + '</div>';
+    }).join("");
+    var tips = g.tips.map(function(t){
+      return screen ? '<p class="guide-tip">※ ' + t + '</p>'
+                    : '<div style="font-size:10px;color:#6b6455;line-height:1.6;margin-top:3px;">※ ' + t.replace(/<a [^>]*>/g,"").replace(/<\/a>/g,"") + '</div>';
+    }).join("");
+    if (screen){
+      return '<div class="guide-box">' +
+        '<div class="guide-box-title">' + g.title + '</div>' +
+        '<p class="guide-box-lead">' + g.lead + '</p>' +
+        '<h4>1. 챙겨갈 서류</h4><ul class="guide-list">' + docs + '</ul>' +
+        '<h4>2. 창구에서 이렇게 말씀하세요</h4><div class="guide-say">' + g.say + '</div>' +
+        '<h4>3. 참고</h4>' + tips +
+      '</div>';
+    }
+    return '<div style="margin:4px 0 10px;padding:10px 12px;border:1px solid #ddd4bf;border-radius:8px;background:#fffdf8;page-break-inside:avoid;">' +
+      '<div style="font-size:12px;font-weight:700;color:#1f3a52;margin-bottom:3px;">' + g.title + '</div>' +
+      '<div style="font-size:10.5px;color:#6b6455;line-height:1.6;margin-bottom:6px;">' + g.lead + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:6px 0 2px;">1. 챙겨갈 서류</div>' +
+      '<div style="font-size:11px;color:#26241f;line-height:1.6;">' + docs + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">2. 창구에서 이렇게 말씀하세요</div>' +
+      '<div style="padding:7px 10px;border-left:3px solid #a23b2e;background:#f3e1dd;font-size:10.5px;color:#26241f;line-height:1.7;">' + g.say + '</div>' +
+      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">3. 참고</div>' + tips +
+    '</div>';
+  }
+
   function rowHtml(item, id, isChecked){
     if (item.custom){
       var val = customTextValues[id] || "";
@@ -553,6 +633,12 @@ if (!window.html2pdf) {
         intro.className = "section-intro";
         intro.textContent = section.intro;
         sec.appendChild(intro);
+      }
+
+      if (section.guide){
+        var guideWrap = document.createElement("div");
+        guideWrap.innerHTML = guideHtml(section.guide, true);
+        sec.appendChild(guideWrap.firstChild);
       }
 
       var lastGroup;
@@ -718,6 +804,7 @@ if (!window.html2pdf) {
           (section.hint ? '<span style="font-size:10.5px;color:#9a927e;margin-left:auto;">' + section.hint + '</span>' : '') +
         '</div>' +
         introHtml +
+        guideHtml(section.guide, false) +
         '<table style="width:100%;border-collapse:collapse;">' + rows + '</table>' +
         ftHtml +
       '</div>';
