@@ -494,7 +494,7 @@ if (!window.html2pdf) {
             { job:"예금 지급·해지·명의변경", who:"공동상속인 전원", need:"전원 동의 필요 (100만원 이하 소액은 대표 1인 가능한 은행 많음)" }
           ],
           cases:[
-            { title:"상속인이 아무도 못 가서 대리인(가족·사무소 담당자)이 조회하러 갈 때", body:"상속인 중 <b>1명</b>의 위임만 받으면 됩니다 — 위임장(은행 양식, 범위에 \"사망일 기준 잔액증명서·사망일 이전 10년 거래내역 발급\" 기재) + 위임인 인감증명서(3개월 이내, 위임장에 인감 날인) 또는 본인서명사실확인서 + 위임인 신분증 사본 + 대리인 신분증 + 피상속인 기본·가족관계증명서(상세). 은행에 따라 직계가족 대리만 받는 곳이 있으니 사전 전화 확인." },
+            { title:"상속인이 아무도 못 가서 대리인이 조회하러 갈 때", body:"상속인 중 <b>1명</b>의 위임만 받으면 됩니다 — 위임장(은행 양식, 범위에 \"사망일 기준 잔액증명서·사망일 이전 10년 거래내역 발급\" 기재) + 위임인 인감증명서(3개월 이내, 위임장에 인감 날인) 또는 본인서명사실확인서 + 위임인 신분증 사본 + 대리인 신분증 + 피상속인 기본·가족관계증명서(상세). 은행에 따라 직계가족 대리만 받는 곳이 있으니 사전 전화 확인." },
             { title:"지급·해지 단계 — 못 오는 상속인 처리", body:"대표 상속인 1명이 나머지 상속인의 서류를 모아 갑니다. 못 오는 상속인 각자: 은행 양식 위임장(또는 상속예금지급의뢰서에 자필 서명·인감 날인) + 인감증명서(3개월 이내, 용도 \"상속예금 지급\") + 신분증 사본. <b>상속재산분할협의서</b>가 있으면 협의서 원본 + 전원 인감증명서로 위임장을 갈음하는 은행이 많습니다." },
             { title:"특수한 상속인", body:"해외 거주 → 재외공관 영사확인 위임장(또는 현지 공증 + 아포스티유), 인감증명서 대신 서명확인서 · 미성년 → 부모도 상속인이면 이해상반이라 특별대리인 선임 필요(민법 제921조, ① 기본서류 항목 참고) · 상속포기·한정승인 → 법원 심판문으로 동의 갈음." }
           ],
@@ -572,19 +572,22 @@ if (!window.html2pdf) {
   }
 
   // 은행 방문 안내 박스 — 화면(screen=true)과 PDF(screen=false) 공용
-  function guideHtml(g, screen){
+  // k: PDF용 크기 배율 (1 = 기본). 은행 방문 안내만 한 장으로 뽑을 때 줄여 씁니다.
+  function guideHtml(g, screen, k){
     if (!g) return "";
+    k = k || 1;
+    function px(n){ return (n * k).toFixed(2) + "px"; }
     var docs = g.docs.map(function(d){
       var tag = screen
         ? '<span class="req-tag ' + (d.req === "필수" ? "req-must" : "req-cond") + '">' + d.req + '</span>'
-        : ' <span style="font-size:9.5px;font-weight:700;color:' + (d.req === "필수" ? "#1f3a52" : "#9a927e") + ';">(' + d.req + ')</span>';
-      var note = d.note ? (screen ? '<small>' + d.note + '</small>' : ' <span style="color:#9a927e;font-size:10.5px;">— ' + d.note + '</span>') : '';
+        : ' <span style="font-size:' + px(9.5) + ';font-weight:700;color:' + (d.req === "필수" ? "#1f3a52" : "#9a927e") + ';">(' + d.req + ')</span>';
+      var note = d.note ? (screen ? '<small>' + d.note + '</small>' : ' <span style="color:#9a927e;font-size:' + px(10.5) + ';">— ' + d.note + '</span>') : '';
       return screen ? '<li>' + d.label + tag + note + '</li>'
-                    : '<div style="padding:2px 0 2px 12px;text-indent:-8px;">· ' + d.label + tag + note + '</div>';
+                    : '<div style="padding:' + px(2) + ' 0 ' + px(2) + ' ' + px(12) + ';text-indent:-' + px(8) + ';">· ' + d.label + tag + note + '</div>';
     }).join("");
     var tips = g.tips.map(function(t){
       return screen ? '<p class="guide-tip">※ ' + t + '</p>'
-                    : '<div style="font-size:10px;color:#6b6455;line-height:1.6;margin-top:3px;">※ ' + t.replace(/<a [^>]*>/g,"").replace(/<\/a>/g,"") + '</div>';
+                    : '<div style="font-size:' + px(10) + ';color:#6b6455;line-height:1.6;margin-top:' + px(3) + ';">※ ' + t.replace(/<a [^>]*>/g,"").replace(/<\/a>/g,"") + '</div>';
     }).join("");
 
     // 4. 상속인이 못 가는 경우 (위임)
@@ -604,21 +607,21 @@ if (!window.html2pdf) {
           '<ul class="guide-list guide-cases">' + cs + '</ul>' +
           '<p class="guide-tip">※ ' + p.tip + '</p>';
       } else {
-        var cell = 'padding:4px 6px;border:1px solid #ddd4bf;font-size:10px;line-height:1.5;vertical-align:top;';
+        var cell = 'padding:' + px(4) + ' ' + px(6) + ';border:1px solid #ddd4bf;font-size:' + px(10) + ';line-height:1.5;vertical-align:top;';
         var trs2 = p.table.map(function(r){
           return '<tr><td style="' + cell + '">' + r.job + '</td><td style="' + cell + '">' + r.who + '</td><td style="' + cell + '">' + r.need + '</td></tr>';
         }).join("");
         var cs2 = p.cases.map(function(c){
-          return '<div style="padding:3px 0 3px 12px;text-indent:-8px;font-size:10.5px;line-height:1.6;">· <b>' + c.title + '</b><br><span style="color:#6b6455;">' + c.body + '</span></div>';
+          return '<div style="padding:' + px(3) + ' 0 ' + px(3) + ' ' + px(12) + ';text-indent:-' + px(8) + ';font-size:' + px(10.5) + ';line-height:1.6;">· <b>' + c.title + '</b><br><span style="color:#6b6455;">' + c.body + '</span></div>';
         }).join("");
-        proxyHtml = '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">4. 상속인이 못 가는 경우 (위임)</div>' +
-          '<div style="font-size:10.5px;color:#6b6455;line-height:1.6;margin-bottom:5px;">' + p.lead + '</div>' +
-          '<table style="width:100%;border-collapse:collapse;margin-bottom:5px;"><tr>' +
+        proxyHtml = '<div style="font-size:' + px(11) + ';font-weight:700;color:#26241f;margin:' + px(8) + ' 0 ' + px(2) + ';">4. 상속인이 못 가는 경우 (위임)</div>' +
+          '<div style="font-size:' + px(10.5) + ';color:#6b6455;line-height:1.6;margin-bottom:' + px(5) + ';">' + p.lead + '</div>' +
+          '<table style="width:100%;border-collapse:collapse;margin-bottom:' + px(5) + ';"><tr>' +
             '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">업무</th>' +
             '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">누가 가면 되나</th>' +
             '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">다른 상속인 위임</th></tr>' + trs2 + '</table>' +
           cs2 +
-          '<div style="font-size:10px;color:#6b6455;line-height:1.6;margin-top:3px;">※ ' + p.tip + '</div>';
+          '<div style="font-size:' + px(10) + ';color:#6b6455;line-height:1.6;margin-top:' + px(3) + ';">※ ' + p.tip + '</div>';
       }
     }
 
@@ -636,14 +639,14 @@ if (!window.html2pdf) {
           '<span class="guide-actions-note">은행 갈 때 출력하거나 가족에게 보내기 좋게 한 장으로 정리됩니다.</span></div>' +
       '</div>';
     }
-    return '<div style="margin:4px 0 10px;padding:10px 12px;border:1px solid #ddd4bf;border-radius:8px;background:#fffdf8;">' +
-      '<div style="font-size:12px;font-weight:700;color:#1f3a52;margin-bottom:3px;">' + g.title + '</div>' +
-      '<div style="font-size:10.5px;color:#6b6455;line-height:1.6;margin-bottom:6px;">' + g.lead + '</div>' +
-      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:6px 0 2px;">1. 챙겨갈 서류</div>' +
-      '<div style="font-size:11px;color:#26241f;line-height:1.6;">' + docs + '</div>' +
-      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">2. 창구에서 이렇게 말씀하세요</div>' +
-      '<div style="padding:7px 10px;border-left:3px solid #a23b2e;background:#f3e1dd;font-size:10.5px;color:#26241f;line-height:1.7;">' + g.say + '</div>' +
-      '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">3. 참고</div>' + tips +
+    return '<div style="margin:' + px(4) + ' 0 ' + px(10) + ';padding:' + px(10) + ' ' + px(12) + ';border:' + px(1) + ' solid #ddd4bf;border-radius:' + px(8) + ';background:#fffdf8;">' +
+      '<div style="font-size:' + px(12) + ';font-weight:700;color:#1f3a52;margin-bottom:' + px(3) + ';">' + g.title + '</div>' +
+      '<div style="font-size:' + px(10.5) + ';color:#6b6455;line-height:1.6;margin-bottom:' + px(6) + ';">' + g.lead + '</div>' +
+      '<div style="font-size:' + px(11) + ';font-weight:700;color:#26241f;margin:' + px(6) + ' 0 ' + px(2) + ';">1. 챙겨갈 서류</div>' +
+      '<div style="font-size:' + px(11) + ';color:#26241f;line-height:1.6;">' + docs + '</div>' +
+      '<div style="font-size:' + px(11) + ';font-weight:700;color:#26241f;margin:' + px(8) + ' 0 ' + px(2) + ';">2. 창구에서 이렇게 말씀하세요</div>' +
+      '<div style="padding:' + px(7) + ' ' + px(10) + ';border-left:' + px(3) + ' solid #a23b2e;background:#f3e1dd;font-size:' + px(10.5) + ';color:#26241f;line-height:1.7;">' + g.say + '</div>' +
+      '<div style="font-size:' + px(11) + ';font-weight:700;color:#26241f;margin:' + px(8) + ' 0 ' + px(2) + ';">3. 참고</div>' + tips +
       proxyHtml +
     '</div>';
   }
@@ -1076,7 +1079,10 @@ if (!window.html2pdf) {
   }
 
   // ---- 은행 방문 안내만 별도 PDF ----
-  function buildGuidePrintHtml(){
+  // k: 크기 배율. 한 장(A4)에 들어갈 때까지 generateGuidePdfBlob()이 줄여가며 호출합니다.
+  function buildGuidePrintHtml(k){
+    k = k || 1;
+    function px(n){ return (n * k).toFixed(2) + "px"; }
     var g = null;
     SECTIONS.forEach(function(s){ if (s.guide) g = s.guide; });
     if (!g) return "";
@@ -1084,22 +1090,22 @@ if (!window.html2pdf) {
     var date = document.getElementById("f-date").value;
     var dateStr = escapeHtml(formatDateInput(date));
     // 대사 안의 사망일 빈칸(○○○○년 ○월 ○일)은 상속개시일 입력값이 있으면 채워서 출력
-    var body = guideHtml(g, false);
+    var body = guideHtml(g, false, k);
     if (date) body = body.replace(/<b>○○○○년 ○월 ○일<\/b>/, '<b>' + dateStr + '</b>');
     return (
-      '<div style="width:794px;padding:44px 56px 40px;font-family:\'Noto Sans KR\',sans-serif;color:#26241f;background:#ffffff;">' +
-        '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #1f3a52;padding-bottom:14px;margin-bottom:16px;">' +
+      '<div style="width:794px;padding:' + px(30) + ' ' + px(44) + ' ' + px(24) + ';font-family:\'Noto Sans KR\',sans-serif;color:#26241f;background:#ffffff;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #1f3a52;padding-bottom:' + px(9) + ';margin-bottom:' + px(8) + ';">' +
           '<div>' +
-            '<div style="font-family:\'Noto Serif KR\',serif;font-size:21px;font-weight:700;color:#1f3a52;">상속세 신고 · 은행 방문 안내</div>' +
-            '<div style="font-size:12px;color:#6b6455;margin-top:5px;">사망일 기준 잔액증명서 · 10년 거래내역 발급받기' +
+            '<div style="font-family:\'Noto Serif KR\',serif;font-size:' + px(19) + ';font-weight:700;color:#1f3a52;">상속세 신고 · 은행 방문 안내</div>' +
+            '<div style="font-size:' + px(11) + ';color:#6b6455;margin-top:' + px(3) + ';">사망일 기준 잔액증명서 · 10년 거래내역 발급받기' +
               (name ? ' · 상속인 ' + name : '') + (date ? ' · 상속개시일 ' + dateStr : '') + '</div>' +
           '</div>' +
-          '<div style="text-align:right;font-size:11px;color:#9a927e;line-height:1.7;">' +
-            '원제우세무사사무소<br>세무사 원제우<br>부천시 소향로 135, 3층<br>Tel 032-321-4521 · Fax 02-6280-4521<br>taxmancall@gmail.com · 카카오톡 taxmancall' +
+          '<div style="text-align:right;font-size:' + px(9.5) + ';color:#9a927e;line-height:1.6;">' +
+            '원제우세무사사무소 · 세무사 원제우<br>부천시 소향로 135, 3층 · Tel 032-321-4521<br>taxmancall@gmail.com · 카카오톡 taxmancall' +
           '</div>' +
         '</div>' +
         body +
-        '<div style="margin-top:14px;padding-top:10px;border-top:1px dashed #ddd4bf;font-size:10.5px;color:#9a927e;line-height:1.7;">' +
+        '<div style="margin-top:' + px(4) + ';padding-top:' + px(6) + ';border-top:1px dashed #ddd4bf;font-size:' + px(9.5) + ';color:#9a927e;line-height:1.6;">' +
           '※ 은행마다 요구서류가 조금씩 다를 수 있습니다. 방문 전 지점에 전화로 확인해 주세요. 발급받은 서류는 원제우세무사사무소(taxmancall@gmail.com · 카카오톡 taxmancall)로 보내주시면 됩니다. · 작성일 ' + todayStr() +
         '</div>' +
       '</div>'
@@ -1107,12 +1113,20 @@ if (!window.html2pdf) {
   }
 
   function generateGuidePdfBlob(){
-    printRoot.innerHTML = buildGuidePrintHtml();
+    var MARGIN_PT = 18;                                   // 상·하 여백 (pt)
+    var PAGE_PX = 1123 - Math.round(MARGIN_PT * 2 * 96 / 72); // A4 794×1123px 기준 사용 가능 높이
     printRoot.style.display = "block";
+    // 1.0 → 0.72까지 줄여가며 한 장에 들어가는 첫 배율 사용
+    var k = 1.0;
+    for (;;){
+      printRoot.innerHTML = buildGuidePrintHtml(k);
+      if (printRoot.scrollHeight <= PAGE_PX || k <= 0.72) break;
+      k = Math.round((k - 0.03) * 100) / 100;
+    }
     var name = document.getElementById("f-name").value.trim().replace(/[\\/:*?"<>|]/g, "");
     var filename = "은행방문안내_상속세" + (name ? "_" + name : "") + ".pdf";
     var opts = {
-      margin: [34, 0, 34, 0],
+      margin: [MARGIN_PT, 0, MARGIN_PT, 0],
       filename: filename,
       image: { type: "jpeg", quality: 0.97 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
@@ -1122,7 +1136,14 @@ if (!window.html2pdf) {
     function cleanup(){ printRoot.style.display = "none"; printRoot.innerHTML = ""; }
     return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve())
       .then(function(){ return new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(r); }); }); })
-      .then(function(){ return window.html2pdf().set(opts).from(printRoot).outputPdf("blob"); })
+      .then(function(){
+        // 폰트 로딩 후 높이가 달라졌을 수 있으니 한 번 더 확인
+        while (printRoot.scrollHeight > PAGE_PX && k > 0.72){
+          k = Math.round((k - 0.03) * 100) / 100;
+          printRoot.innerHTML = buildGuidePrintHtml(k);
+        }
+        return window.html2pdf().set(opts).from(printRoot).outputPdf("blob");
+      })
       .then(function(blob){ cleanup(); return { blob: blob, filename: filename }; })
       .catch(function(err){ cleanup(); throw err; });
   }
