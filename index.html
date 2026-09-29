@@ -204,6 +204,12 @@
   .guide-cases li{ margin-bottom:5px; }
   .guide-cases li b{ color:var(--ink); }
   .guide-cases li small{ margin-top:1px; }
+  .guide-actions{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-top:12px; padding-top:10px; border-top:1px dashed var(--line);
+  }
+  .guide-actions .pdf-btn{ padding:9px 14px; font-size:13px; }
+  .guide-actions-note{ font-size:11.5px; color:var(--ink-faint); line-height:1.5; flex:1; min-width:160px; }
   @media (max-width:420px){
     .guide-table{ font-size:11px; }
     .guide-table th, .guide-table td{ padding:4px 5px; }
@@ -624,6 +630,10 @@ if (!window.html2pdf) {
         '<h4>2. 창구에서 이렇게 말씀하세요</h4><div class="guide-say">' + g.say + '</div>' +
         '<h4>3. 참고</h4>' + tips +
         proxyHtml +
+        '<div class="guide-actions"><button type="button" class="pdf-btn pdf-btn-secondary guide-pdf-btn">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>' +
+          '이 안내만 PDF로 저장</button>' +
+          '<span class="guide-actions-note">은행 갈 때 출력하거나 가족에게 보내기 좋게 한 장으로 정리됩니다.</span></div>' +
       '</div>';
     }
     return '<div style="margin:4px 0 10px;padding:10px 12px;border:1px solid #ddd4bf;border-radius:8px;background:#fffdf8;">' +
@@ -1064,6 +1074,86 @@ if (!window.html2pdf) {
     toast("PDF 기능을 불러오지 못했습니다. 크롬·사파리 등 다른 브라우저에서 열어주세요.");
     return false;
   }
+
+  // ---- 은행 방문 안내만 별도 PDF ----
+  function buildGuidePrintHtml(){
+    var g = null;
+    SECTIONS.forEach(function(s){ if (s.guide) g = s.guide; });
+    if (!g) return "";
+    var name = escapeHtml(document.getElementById("f-name").value.trim());
+    var date = document.getElementById("f-date").value;
+    var dateStr = escapeHtml(formatDateInput(date));
+    // 대사 안의 사망일 빈칸(○○○○년 ○월 ○일)은 상속개시일 입력값이 있으면 채워서 출력
+    var body = guideHtml(g, false);
+    if (date) body = body.replace(/<b>○○○○년 ○월 ○일<\/b>/, '<b>' + dateStr + '</b>');
+    return (
+      '<div style="width:794px;padding:44px 56px 40px;font-family:\'Noto Sans KR\',sans-serif;color:#26241f;background:#ffffff;">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #1f3a52;padding-bottom:14px;margin-bottom:16px;">' +
+          '<div>' +
+            '<div style="font-family:\'Noto Serif KR\',serif;font-size:21px;font-weight:700;color:#1f3a52;">상속세 신고 · 은행 방문 안내</div>' +
+            '<div style="font-size:12px;color:#6b6455;margin-top:5px;">사망일 기준 잔액증명서 · 10년 거래내역 발급받기' +
+              (name ? ' · 상속인 ' + name : '') + (date ? ' · 상속개시일 ' + dateStr : '') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;font-size:11px;color:#9a927e;line-height:1.7;">' +
+            '원제우세무사사무소<br>세무사 원제우<br>부천시 소향로 135, 3층<br>Tel 032-321-4521 · Fax 02-6280-4521<br>taxmancall@gmail.com · 카카오톡 taxmancall' +
+          '</div>' +
+        '</div>' +
+        body +
+        '<div style="margin-top:14px;padding-top:10px;border-top:1px dashed #ddd4bf;font-size:10.5px;color:#9a927e;line-height:1.7;">' +
+          '※ 은행마다 요구서류가 조금씩 다를 수 있습니다. 방문 전 지점에 전화로 확인해 주세요. 발급받은 서류는 원제우세무사사무소(taxmancall@gmail.com · 카카오톡 taxmancall)로 보내주시면 됩니다. · 작성일 ' + todayStr() +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function generateGuidePdfBlob(){
+    printRoot.innerHTML = buildGuidePrintHtml();
+    printRoot.style.display = "block";
+    var name = document.getElementById("f-name").value.trim().replace(/[\\/:*?"<>|]/g, "");
+    var filename = "은행방문안내_상속세" + (name ? "_" + name : "") + ".pdf";
+    var opts = {
+      margin: [34, 0, 34, 0],
+      filename: filename,
+      image: { type: "jpeg", quality: 0.97 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] }
+    };
+    function cleanup(){ printRoot.style.display = "none"; printRoot.innerHTML = ""; }
+    return (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve())
+      .then(function(){ return new Promise(function(r){ requestAnimationFrame(function(){ requestAnimationFrame(r); }); }); })
+      .then(function(){ return window.html2pdf().set(opts).from(printRoot).outputPdf("blob"); })
+      .then(function(blob){ cleanup(); return { blob: blob, filename: filename }; })
+      .catch(function(err){ cleanup(); throw err; });
+  }
+
+  // 안내 박스는 render()로 다시 그려지므로 버튼은 위임 방식으로 처리
+  sectionsEl.addEventListener("click", function(e){
+    var btn = e.target.closest ? e.target.closest(".guide-pdf-btn") : null;
+    if (!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    if (!pdfLibReady()) return;
+    withButtonBusy(btn, "PDF 생성 중…", function(){
+      return generateGuidePdfBlob().then(function(r){
+        return tryNativeShare(r.blob, r.filename).then(function(shared){
+          if (shared) return;
+          return getDownloadsCapability().then(function(cap){
+            if (cap && typeof cap.save === "function"){
+              return cap.save({ filename: r.filename, data: r.blob }).then(function(){
+                toast("은행 방문 안내 PDF를 저장했습니다.");
+              }).catch(function(err){
+                if (err && err.code === "declined"){ toast("저장을 취소했습니다."); return; }
+                directDownload(r.blob, r.filename);
+                toast("은행 방문 안내 PDF를 저장했습니다.");
+              });
+            }
+            directDownload(r.blob, r.filename);
+            toast("은행 방문 안내 PDF를 저장했습니다.");
+          });
+        });
+      });
+    });
+  });
 
   // "PDF 다운로드"는 항상 저장 — 공유는 "이메일로 보내기" 버튼이 전담합니다.
   pdfBtn.addEventListener("click", function(){
