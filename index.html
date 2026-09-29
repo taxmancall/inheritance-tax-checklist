@@ -193,6 +193,21 @@
   .guide-say b{ color:var(--seal); }
   .guide-tip{ font-size:11.5px; color:var(--ink-faint); line-height:1.6; margin:4px 0 0; }
   .guide-tip a{ color:inherit; font-weight:700; text-decoration:underline; }
+  .guide-table{
+    width:100%; border-collapse:collapse; margin:4px 0 8px; font-size:12px; line-height:1.5;
+  }
+  .guide-table th, .guide-table td{
+    border:1px solid var(--line); padding:5px 7px; text-align:left; vertical-align:top;
+  }
+  .guide-table th{ background:var(--navy-soft); color:var(--navy); font-weight:700; font-size:11.5px; white-space:nowrap; }
+  .guide-table td:first-child{ font-weight:600; }
+  .guide-cases li{ margin-bottom:5px; }
+  .guide-cases li b{ color:var(--ink); }
+  .guide-cases li small{ margin-top:1px; }
+  @media (max-width:420px){
+    .guide-table{ font-size:11px; }
+    .guide-table th, .guide-table td{ padding:4px 5px; }
+  }
 
   .item-group{
     font-size:11.5px; font-weight:700; color:var(--navy);
@@ -462,10 +477,23 @@ if (!window.html2pdf) {
             "③ 이 은행에 <b>다른 계좌나 대여금고, 보험·펀드 가입내역</b>이 있는지도 확인해 주세요.\"",
         tips:[
           "거래내역은 지점에 따라 수수료가 있거나 2~3일 걸릴 수 있습니다. 당일 못 받으면 \"우편이나 이메일로 받을 수 있나요?\"라고 물어보세요.",
-          "대리인이 갔을 때 \"상속인 전원 서류가 필요하다\"고 하면 — \"지급·해지가 아니라 잔액증명·거래내역 조회만 하는 겁니다\"라고 말씀하세요. 조회는 상속인 1인(또는 그 대리인)으로 가능하고, 예금 지급·해지만 공동상속인 전원 동의가 필요합니다.",
           "계좌가 어디 있는지 모르면 먼저 <a href=\"https://www.gov.kr\" target=\"_blank\" rel=\"noopener\">안심상속 원스톱 서비스(정부24)</a> 또는 <a href=\"https://www.fss.or.kr\" target=\"_blank\" rel=\"noopener\">금융감독원 상속인 금융거래조회</a>로 전 금융기관 계좌를 확인한 뒤 은행별로 방문하세요. 이 서비스는 사망일 기준 잔액만 나오고 거래내역은 나오지 않습니다.",
           "왜 10년인가요? 상속개시 전 10년 이내 상속인에게 준 사전증여는 상속재산에 합산되고(상속세 및 증여세법 제13조), 사망 전 1년·2년 이내에 인출된 큰 금액은 사용처를 소명해야 하기 때문입니다(같은 법 제15조)."
-        ]
+        ],
+        proxy:{
+          lead:"상속인이 여러 명이면 다 같이 가기 어렵습니다. <b>잔액증명·거래내역 '조회'는 상속인 1명만 가면 되고 다른 상속인의 위임장은 필요 없습니다.</b> 전원 동의가 필요한 건 예금을 실제로 찾는 '지급·해지' 뿐입니다. 창구에서 \"지급이 아니라 조회만 하러 왔다\"고 먼저 말씀하세요.",
+          table:[
+            { job:"사망일 기준 잔액증명서 · 10년 거래내역", who:"상속인 1인", need:"다른 상속인 위임 불필요" },
+            { job:"대여금고 개봉·내용 확인", who:"원칙 전원 (은행별 상이)", need:"위임장 필요한 경우 많음" },
+            { job:"예금 지급·해지·명의변경", who:"공동상속인 전원", need:"전원 동의 필요 (100만원 이하 소액은 대표 1인 가능한 은행 많음)" }
+          ],
+          cases:[
+            { title:"상속인이 아무도 못 가서 대리인(가족·사무소 담당자)이 조회하러 갈 때", body:"상속인 중 <b>1명</b>의 위임만 받으면 됩니다 — 위임장(은행 양식, 범위에 \"사망일 기준 잔액증명서·사망일 이전 10년 거래내역 발급\" 기재) + 위임인 인감증명서(3개월 이내, 위임장에 인감 날인) 또는 본인서명사실확인서 + 위임인 신분증 사본 + 대리인 신분증 + 피상속인 기본·가족관계증명서(상세). 은행에 따라 직계가족 대리만 받는 곳이 있으니 사전 전화 확인." },
+            { title:"지급·해지 단계 — 못 오는 상속인 처리", body:"대표 상속인 1명이 나머지 상속인의 서류를 모아 갑니다. 못 오는 상속인 각자: 은행 양식 위임장(또는 상속예금지급의뢰서에 자필 서명·인감 날인) + 인감증명서(3개월 이내, 용도 \"상속예금 지급\") + 신분증 사본. <b>상속재산분할협의서</b>가 있으면 협의서 원본 + 전원 인감증명서로 위임장을 갈음하는 은행이 많습니다." },
+            { title:"특수한 상속인", body:"해외 거주 → 재외공관 영사확인 위임장(또는 현지 공증 + 아포스티유), 인감증명서 대신 서명확인서 · 미성년 → 부모도 상속인이면 이해상반이라 특별대리인 선임 필요(민법 제921조, ① 기본서류 항목 참고) · 상속포기·한정승인 → 법원 심판문으로 동의 갈음." }
+          ],
+          tip:"인감증명서는 은행 수만큼 미리 발급받으세요(은행마다 원본 요구, 3개월 유효). 순서는 ① 신고 초기에 상속인 1명이 잔액증명·거래내역을 먼저 돌고 → ② 분할협의가 끝난 뒤 지급·해지를 한 번에 처리하는 것이 효율적입니다. 근거: 공동상속인은 상속재산을 공유하며(민법 제1006조) 재산 상태 확인은 보존행위로 각자 할 수 있습니다(민법 제265조 단서)."
+        }
       },
       items:[
       { label:"전 금융기관 사망일 기준 잔액증명서", note:"원본", req:"필수" },
@@ -552,6 +580,42 @@ if (!window.html2pdf) {
       return screen ? '<p class="guide-tip">※ ' + t + '</p>'
                     : '<div style="font-size:10px;color:#6b6455;line-height:1.6;margin-top:3px;">※ ' + t.replace(/<a [^>]*>/g,"").replace(/<\/a>/g,"") + '</div>';
     }).join("");
+
+    // 4. 상속인이 못 가는 경우 (위임)
+    var proxyHtml = "";
+    if (g.proxy){
+      var p = g.proxy;
+      if (screen){
+        var trs = p.table.map(function(r){
+          return '<tr><td>' + r.job + '</td><td>' + r.who + '</td><td>' + r.need + '</td></tr>';
+        }).join("");
+        var cs = p.cases.map(function(c){
+          return '<li><b>' + c.title + '</b><small>' + c.body + '</small></li>';
+        }).join("");
+        proxyHtml = '<h4>4. 상속인이 못 가는 경우 (위임)</h4>' +
+          '<p class="guide-box-lead">' + p.lead + '</p>' +
+          '<table class="guide-table"><thead><tr><th>업무</th><th>누가 가면 되나</th><th>다른 상속인 위임</th></tr></thead><tbody>' + trs + '</tbody></table>' +
+          '<ul class="guide-list guide-cases">' + cs + '</ul>' +
+          '<p class="guide-tip">※ ' + p.tip + '</p>';
+      } else {
+        var cell = 'padding:4px 6px;border:1px solid #ddd4bf;font-size:10px;line-height:1.5;vertical-align:top;';
+        var trs2 = p.table.map(function(r){
+          return '<tr><td style="' + cell + '">' + r.job + '</td><td style="' + cell + '">' + r.who + '</td><td style="' + cell + '">' + r.need + '</td></tr>';
+        }).join("");
+        var cs2 = p.cases.map(function(c){
+          return '<div style="padding:3px 0 3px 12px;text-indent:-8px;font-size:10.5px;line-height:1.6;">· <b>' + c.title + '</b><br><span style="color:#6b6455;">' + c.body + '</span></div>';
+        }).join("");
+        proxyHtml = '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">4. 상속인이 못 가는 경우 (위임)</div>' +
+          '<div style="font-size:10.5px;color:#6b6455;line-height:1.6;margin-bottom:5px;">' + p.lead + '</div>' +
+          '<table style="width:100%;border-collapse:collapse;margin-bottom:5px;"><tr>' +
+            '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">업무</th>' +
+            '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">누가 가면 되나</th>' +
+            '<th style="' + cell + 'background:#e8eef1;font-weight:700;color:#1f3a52;">다른 상속인 위임</th></tr>' + trs2 + '</table>' +
+          cs2 +
+          '<div style="font-size:10px;color:#6b6455;line-height:1.6;margin-top:3px;">※ ' + p.tip + '</div>';
+      }
+    }
+
     if (screen){
       return '<div class="guide-box">' +
         '<div class="guide-box-title">' + g.title + '</div>' +
@@ -559,9 +623,10 @@ if (!window.html2pdf) {
         '<h4>1. 챙겨갈 서류</h4><ul class="guide-list">' + docs + '</ul>' +
         '<h4>2. 창구에서 이렇게 말씀하세요</h4><div class="guide-say">' + g.say + '</div>' +
         '<h4>3. 참고</h4>' + tips +
+        proxyHtml +
       '</div>';
     }
-    return '<div style="margin:4px 0 10px;padding:10px 12px;border:1px solid #ddd4bf;border-radius:8px;background:#fffdf8;page-break-inside:avoid;">' +
+    return '<div style="margin:4px 0 10px;padding:10px 12px;border:1px solid #ddd4bf;border-radius:8px;background:#fffdf8;">' +
       '<div style="font-size:12px;font-weight:700;color:#1f3a52;margin-bottom:3px;">' + g.title + '</div>' +
       '<div style="font-size:10.5px;color:#6b6455;line-height:1.6;margin-bottom:6px;">' + g.lead + '</div>' +
       '<div style="font-size:11px;font-weight:700;color:#26241f;margin:6px 0 2px;">1. 챙겨갈 서류</div>' +
@@ -569,6 +634,7 @@ if (!window.html2pdf) {
       '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">2. 창구에서 이렇게 말씀하세요</div>' +
       '<div style="padding:7px 10px;border-left:3px solid #a23b2e;background:#f3e1dd;font-size:10.5px;color:#26241f;line-height:1.7;">' + g.say + '</div>' +
       '<div style="font-size:11px;font-weight:700;color:#26241f;margin:8px 0 2px;">3. 참고</div>' + tips +
+      proxyHtml +
     '</div>';
   }
 
@@ -797,7 +863,7 @@ if (!window.html2pdf) {
       var ftVal = (freeTextValues[si] || "").trim();
       var ftHtml = ftVal ?
         '<div style="margin-top:6px;padding-top:6px;border-top:1px dashed #ddd4bf;font-size:11px;color:#26241f;"><b style="color:#9a927e;font-weight:700;">메모:</b> ' + ftVal.replace(/</g,"&lt;") + '</div>' : '';
-      return '<div style="margin-bottom:16px;page-break-inside:avoid;">' +
+      return '<div style="margin-bottom:16px;' + (section.guide ? '' : 'page-break-inside:avoid;') + '">' +
         '<div style="display:flex;align-items:baseline;gap:8px;padding-bottom:5px;border-bottom:1.5px solid #1f3a52;margin-bottom:2px;">' +
           '<span style="font-size:14px;font-weight:700;color:#1f3a52;">' + section.no + '</span>' +
           '<span style="font-size:14px;font-weight:700;color:#26241f;">' + section.title + '</span>' +
